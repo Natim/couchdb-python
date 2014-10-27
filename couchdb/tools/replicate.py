@@ -23,6 +23,7 @@ import sys
 import time
 import fnmatch
 
+
 def findpath(parser, s):
     '''returns (server url, path component)'''
 
@@ -52,18 +53,19 @@ def findpath(parser, s):
     base = res.url + (parts[:cut] and '/'.join(parts[:cut]) or '')
     return base, '/'.join(parts[cut:])
 
+
 def main():
 
     usage = '%prog [options] <source> <target>'
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('--continuous',
-        action='store_true',
-        dest='continuous',
-        help='trigger continuous replication in cochdb')
+                      action='store_true',
+                      dest='continuous',
+                      help='trigger continuous replication in cochdb')
     parser.add_option('--compact',
-        action='store_true',
-        dest='compact',
-        help='compact target database after replication')
+                      action='store_true',
+                      dest='compact',
+                      help='compact target database after replication')
 
     options, args = parser.parse_args()
     if len(args) != 2:
@@ -82,7 +84,7 @@ def main():
     if '*' in tpath:
         raise parser.error('invalid target path: must be single db or empty')
 
-    all = sorted(i for i in source if i[0] != '_') # Skip reserved names.
+    all = sorted(i for i in source if i[0] != '_')  # Skip reserved names.
     if not spath:
         raise parser.error('source database must be specified')
 
@@ -122,6 +124,7 @@ def main():
         for (sdb, tdb) in databases:
             print('compact', tdb)
             target[tdb].compact()
+
 
 if __name__ == '__main__':
     main()

@@ -22,6 +22,7 @@ from couchdb.multipart import write_multipart
 
 BULK_SIZE = 1000
 
+
 def dump_docs(envelope, docs):
     for doc in docs:
 
@@ -38,7 +39,7 @@ def dump_docs(envelope, docs):
 
             for name, info in attachments.items():
                 content_type = info.get('content_type')
-                if content_type is None: # CouchDB < 0.8
+                if content_type is None:  # CouchDB < 0.8
                     content_type = info.get('content-type')
                 parts.add(content_type, b64decode(info['data']), {
                     'Content-ID': name
@@ -50,6 +51,7 @@ def dump_docs(envelope, docs):
                 'Content-ID': doc.id,
                 'ETag': '"%s"' % doc.rev
             })
+
 
 def dump_db(dburl, username=None, password=None, boundary=None,
             output=sys.stdout, bulk_size=BULK_SIZE):
@@ -72,7 +74,7 @@ def main():
     parser = OptionParser(usage='%prog [options] dburl', version=VERSION)
     parser.add_option('--json-module', action='store', dest='json_module',
                       help='the JSON module to use ("simplejson", "cjson", '
-                            'or "json" are supported)')
+                      'or "json" are supported)')
     parser.add_option('-u', '--username', action='store', dest='username',
                       help='the username to use for authentication')
     parser.add_option('-p', '--password', action='store', dest='password',

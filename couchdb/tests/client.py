@@ -182,10 +182,10 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         self.assertTrue(client.Database(db.resource.url).name == name)
 
     def test_commit(self):
-        self.assertTrue(self.db.commit()['ok'] == True)
+        self.assertTrue(self.db.commit()['ok'])
 
     def test_create_large_doc(self):
-        self.db['foo'] = {'data': '0123456789' * 110 * 1024} # 10 MB
+        self.db['foo'] = {'data': '0123456789' * 110 * 1024}  # 10 MB
         self.assertEqual('foo', self.db['foo']['_id'])
 
     def test_doc_id_quoting(self):
@@ -307,7 +307,9 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         self.db['foo'] = doc
         self.assertTrue(self.db.get_attachment(doc, 'missing.txt') is None)
         sentinel = object()
-        self.assertTrue(self.db.get_attachment(doc, 'missing.txt', sentinel) is sentinel)
+        self.assertTrue(
+            self.db.get_attachment(doc, 'missing.txt', sentinel) is sentinel
+        )
 
     def test_attachment_from_fs(self):
         tmpdir = tempfile.mkdtemp()
@@ -320,7 +322,9 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         with open(tmpfile) as f:
             self.db.put_attachment(doc, f)
         doc = self.db.get('foo')
-        self.assertTrue(doc['_attachments']['test.txt']['content_type'] == 'text/plain')
+        self.assertTrue(
+            doc['_attachments']['test.txt']['content_type'] == 'text/plain'
+        )
         shutil.rmtree(tmpdir)
 
     def test_attachment_no_filename(self):
@@ -332,7 +336,9 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         doc = {}
         self.db['foo'] = doc
         self.db.put_attachment(doc, '{}', 'test.json', 'application/json')
-        self.assertEqual(self.db.get_attachment(doc, 'test.json').read(), b'{}')
+        self.assertEqual(
+            self.db.get_attachment(doc, 'test.json').read(), b'{}'
+        )
 
     def test_include_docs(self):
         doc = {'foo': 42, 'bar': 40}
@@ -426,6 +432,7 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         class DictLike(object):
             def __init__(self, doc):
                 self.doc = doc
+
             def items(self):
                 return self.doc.items()
         self.db['foo'] = {'status': 'testing'}
@@ -436,6 +443,7 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         class DictLike(object):
             def __init__(self, doc):
                 self.doc = doc
+
             def items(self):
                 return self.doc.items()
         self.db['foo'] = {'status': 'testing'}
@@ -461,7 +469,9 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         # that the HTTP connection made it to the pool.
         list(self.db.changes(feed='continuous', timeout=0))
         scheme, netloc = util.urlsplit(client.DEFAULT_BASE_URL)[:2]
-        self.assertTrue(self.db.resource.session.connection_pool.conns[(scheme, netloc)])
+        self.assertTrue(
+            self.db.resource.session.connection_pool.conns[(scheme, netloc)]
+        )
 
     def test_changes_releases_conn_when_lastseq(self):
         # Consume a changes feed, stopping at the 'last_seq' item, i.e. don't
@@ -471,7 +481,9 @@ class DatabaseTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
             if 'last_seq' in obj:
                 break
         scheme, netloc = util.urlsplit(client.DEFAULT_BASE_URL)[:2]
-        self.assertTrue(self.db.resource.session.connection_pool.conns[(scheme, netloc)])
+        self.assertTrue(
+            self.db.resource.session.connection_pool.conns[(scheme, netloc)]
+        )
 
     def test_changes_conn_usable(self):
         # Consume a changes feed to get a used connection in the pool.
@@ -585,13 +597,13 @@ class ViewTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
             return
 
         for i in range(1, 4):
-            self.db.save({'i': i, 'j':2*i})
+            self.db.save({'i': i, 'j': 2 * i})
 
         def map_fun(doc):
             yield doc['i'], doc['j']
         res = list(self.db.query(map_fun, language='python'))
         self.assertEqual(3, len(res))
-        for idx, i in enumerate(range(1,4)):
+        for idx, i in enumerate(range(1, 4)):
             self.assertEqual(i, res[idx].key)
             self.assertEqual(2*i, res[idx].value)
 
@@ -603,12 +615,14 @@ class ViewTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
 
     def test_init_with_resource(self):
         self.db['foo'] = {}
-        view = client.PermanentView(self.db.resource('_all_docs').url, '_all_docs')
+        view = client.PermanentView(self.db.resource('_all_docs').url,
+                                    '_all_docs')
         self.assertEqual(len(list(view())), 1)
 
     def test_iter_view(self):
         self.db['foo'] = {}
-        view = client.PermanentView(self.db.resource('_all_docs').url, '_all_docs')
+        view = client.PermanentView(self.db.resource('_all_docs').url,
+                                    '_all_docs')
         self.assertEqual(len(list(view)), 1)
 
     def test_update_seq(self):
@@ -627,25 +641,35 @@ class ViewTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
             def __init__(self, doc):
                 pass
         self.db['foo'] = {}
-        self.assertTrue(isinstance(list(self.db.view('_all_docs', wrapper=Wrapper))[0], Wrapper))
+        self.assertTrue(
+            isinstance(list(self.db.view('_all_docs', wrapper=Wrapper))[0],
+                       Wrapper)
+        )
 
     def test_wrapper_rows(self):
         class Wrapper(object):
             def __init__(self, doc):
                 pass
         self.db['foo'] = {}
-        self.assertTrue(isinstance(self.db.view('_all_docs', wrapper=Wrapper).rows[0], Wrapper))
+        self.assertTrue(
+            isinstance(self.db.view('_all_docs', wrapper=Wrapper).rows[0],
+                       Wrapper)
+        )
 
     def test_properties(self):
         for attr in ['rows', 'total_rows', 'offset']:
-            self.assertTrue(getattr(self.db.view('_all_docs'), attr) is not None)
+            self.assertTrue(getattr(self.db.view('_all_docs'), attr)
+                            is not None)
 
     def test_rowrepr(self):
         self.db['foo'] = {}
         rows = list(self.db.query("function(doc) {emit(null, 1);}"))
         self.assertTrue('Row' in repr(rows[0]))
         self.assertTrue('id' in repr(rows[0]))
-        rows = list(self.db.query("function(doc) {emit(null, 1);}", "function(keys, values, combine) {return sum(values);}"))
+        rows = list(self.db.query(
+            "function(doc) {emit(null, 1);}",
+            "function(keys, values, combine) {return sum(values);}")
+        )
         self.assertTrue('Row' in repr(rows[0]))
         self.assertTrue('id' not in repr(rows[0]))
 
@@ -671,11 +695,12 @@ class ShowListTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         }
         """
 
-    design_doc = {'_id': '_design/foo',
-                  'shows': {'bar': show_func},
-                  'views': {'by_id': {'map': "function(doc) {emit(doc._id, null)}"},
-                            'by_name': {'map': "function(doc) {emit(doc.name, null)}"}},
-                  'lists': {'list': list_func}}
+    design_doc = {
+        '_id': '_design/foo',
+        'shows': {'bar': show_func},
+        'views': {'by_id': {'map': "function(doc) {emit(doc._id, null)}"},
+                  'by_name': {'map': "function(doc) {emit(doc.name, null)}"}},
+        'lists': {'list': list_func}}
 
     def setUp(self):
         super(ShowListTestCase, self).setUp()
@@ -685,30 +710,46 @@ class ShowListTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         design_doc = dict(self.design_doc)
         design_doc['timestamp'] = time.time()
         self.db.save(design_doc)
-        self.db.update([{'_id': '1', 'name': 'one'}, {'_id': '2', 'name': 'two'}])
+        self.db.update([{'_id': '1', 'name': 'one'},
+                        {'_id': '2', 'name': 'two'}])
 
     def test_show_urls(self):
-        self.assertEqual(self.db.show('_design/foo/_show/bar')[1].read(), b'null:<default>')
+        self.assertEqual(self.db.show('_design/foo/_show/bar')[1].read(),
+                         b'null:<default>')
         self.assertEqual(self.db.show('foo/bar')[1].read(), b'null:<default>')
 
     def test_show_docid(self):
         self.assertEqual(self.db.show('foo/bar')[1].read(), b'null:<default>')
-        self.assertEqual(self.db.show('foo/bar', '1')[1].read(), b'1:<default>')
-        self.assertEqual(self.db.show('foo/bar', '2')[1].read(), b'2:<default>')
+        self.assertEqual(self.db.show('foo/bar', '1')[1].read(),
+                         b'1:<default>')
+        self.assertEqual(self.db.show('foo/bar', '2')[1].read(),
+                         b'2:<default>')
 
     def test_show_params(self):
-        self.assertEqual(self.db.show('foo/bar', r='abc')[1].read(), b'null:abc')
+        self.assertEqual(self.db.show('foo/bar', r='abc')[1].read(),
+                         b'null:abc')
 
     def test_list(self):
-        self.assertEqual(self.db.list('foo/list', 'foo/by_id')[1].read(), b'1\r\n2\r\n')
-        self.assertEqual(self.db.list('foo/list', 'foo/by_id', include_header='true')[1].read(), b'id\r\n1\r\n2\r\n')
+        self.assertEqual(self.db.list('foo/list', 'foo/by_id')[1].read(),
+                         b'1\r\n2\r\n')
+        self.assertEqual(
+            self.db.list('foo/list',
+                         'foo/by_id', include_header='true')[1].read(),
+            b'id\r\n1\r\n2\r\n')
 
     def test_list_keys(self):
-        self.assertEqual(self.db.list('foo/list', 'foo/by_id', keys=['1'])[1].read(), b'1\r\n')
+        self.assertEqual(
+            self.db.list('foo/list', 'foo/by_id', keys=['1'])[1].read(),
+            b'1\r\n')
 
     def test_list_view_params(self):
-        self.assertEqual(self.db.list('foo/list', 'foo/by_name', startkey='o', endkey='p')[1].read(), b'1\r\n')
-        self.assertEqual(self.db.list('foo/list', 'foo/by_name', descending=True)[1].read(), b'2\r\n1\r\n')
+        self.assertEqual(
+            self.db.list('foo/list', 'foo/by_name',
+                         startkey='o', endkey='p')[1].read(),
+            b'1\r\n')
+        self.assertEqual(self.db.list('foo/list', 'foo/by_name',
+                                      descending=True)[1].read(),
+                         b'2\r\n1\r\n')
 
 
 class UpdateHandlerTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
@@ -743,10 +784,12 @@ class UpdateHandlerTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         self.assertEqual(self.db.update_doc('foo/bar')[1].read(), b'empty doc')
 
     def test_new_doc(self):
-        self.assertEqual(self.db.update_doc('foo/bar', 'new')[1].read(), b'new doc')
+        self.assertEqual(self.db.update_doc('foo/bar', 'new')[1].read(),
+                         b'new doc')
 
     def test_update_doc(self):
-        self.assertEqual(self.db.update_doc('foo/bar', 'existed')[1].read(), b'hello doc')
+        self.assertEqual(self.db.update_doc('foo/bar', 'existed')[1].read(),
+                         b'hello doc')
 
 
 class ViewIterationTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
@@ -761,62 +804,102 @@ class ViewIterationTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
 
     def setUp(self):
         super(ViewIterationTestCase, self).setUp()
-        design_doc = {'_id': '_design/test',
-                      'views': {'nums': {'map': 'function(doc) {emit(doc.num, null);}'},
-                                'nulls': {'map': 'function(doc) {emit(null, null);}'}}}
+        design_doc = {
+            '_id': '_design/test',
+            'views': {'nums': {'map': 'function(doc) {emit(doc.num, null);}'},
+                      'nulls': {'map': 'function(doc) {emit(null, null);}'}}}
         self.db.save(design_doc)
         self.db.update([self.docfromnum(num) for num in range(self.num_docs)])
 
     def test_allrows(self):
         rows = list(self.db.iterview('test/nums', 10))
         self.assertEqual(len(rows), self.num_docs)
-        self.assertEqual([self.docfromrow(row) for row in rows],
-                         [self.docfromnum(num) for num in range(self.num_docs)])
+        self.assertEqual(
+            [self.docfromrow(row) for row in rows],
+            [self.docfromnum(num) for num in range(self.num_docs)]
+        )
 
     def test_batchsizes(self):
         # Check silly _batch values.
-        self.assertRaises(ValueError, lambda: next(self.db.iterview('test/nums', 0)))
-        self.assertRaises(ValueError, lambda: next(self.db.iterview('test/nums', -1)))
+        self.assertRaises(ValueError,
+                          lambda: next(self.db.iterview('test/nums', 0)))
+        self.assertRaises(ValueError,
+                          lambda: next(self.db.iterview('test/nums', -1)))
         # Test various _batch sizes that are likely to cause trouble.
-        self.assertEqual(len(list(self.db.iterview('test/nums', 1))), self.num_docs)
-        self.assertEqual(len(list(self.db.iterview('test/nums', int(self.num_docs / 2)))), self.num_docs)
-        self.assertEqual(len(list(self.db.iterview('test/nums', self.num_docs * 2))), self.num_docs)
-        self.assertEqual(len(list(self.db.iterview('test/nums', self.num_docs - 1))), self.num_docs)
-        self.assertEqual(len(list(self.db.iterview('test/nums', self.num_docs))), self.num_docs)
-        self.assertEqual(len(list(self.db.iterview('test/nums', self.num_docs + 1))), self.num_docs)
+        self.assertEqual(len(list(self.db.iterview('test/nums', 1))),
+                         self.num_docs)
+        self.assertEqual(len(list(
+            self.db.iterview('test/nums', int(self.num_docs / 2)))),
+            self.num_docs)
+        self.assertEqual(len(list(self.db.iterview('test/nums',
+                                                   self.num_docs * 2))),
+                         self.num_docs)
+        self.assertEqual(len(list(self.db.iterview('test/nums',
+                                                   self.num_docs - 1))),
+                         self.num_docs)
+        self.assertEqual(len(list(self.db.iterview('test/nums',
+                                                   self.num_docs))),
+                         self.num_docs)
+        self.assertEqual(len(list(self.db.iterview('test/nums',
+                                                   self.num_docs + 1))),
+                         self.num_docs)
 
     def test_batchsizes_with_skip(self):
         self.assertEqual(
-            len(list(self.db.iterview('test/nums', self.num_docs // 10, skip=self.num_docs // 2))),
+            len(list(self.db.iterview('test/nums', self.num_docs // 10,
+                                      skip=self.num_docs // 2))),
             self.num_docs // 2)
 
     def test_limit(self):
         # limit=0 doesn't make sense for iterview.
-        self.assertRaises(ValueError, lambda: next(self.db.iterview('test/nums', 10, limit=0)))
+        self.assertRaises(ValueError,
+                          lambda: next(self.db.iterview('test/nums', 10,
+                                                        limit=0)))
         # Test various limit sizes that are likely to cause trouble.
-        for limit in [1, int(self.num_docs / 4), self.num_docs - 1, self.num_docs,
+        for limit in [1, int(self.num_docs / 4), self.num_docs - 1,
+                      self.num_docs,
                       self.num_docs + 1]:
-            self.assertEqual([self.docfromrow(doc) for doc in self.db.iterview('test/nums', 10, limit=limit)],
-                             [self.docfromnum(x) for x in range(min(limit, self.num_docs))])
+            self.assertEqual([self.docfromrow(doc) for doc in
+                              self.db.iterview('test/nums', 10, limit=limit)],
+                             [self.docfromnum(x) for x in
+                              range(min(limit, self.num_docs))])
         # Test limit same as batch size, in case of weird edge cases.
         limit = int(self.num_docs / 4)
-        self.assertEqual([self.docfromrow(doc) for doc in self.db.iterview('test/nums', limit, limit=limit)],
+        self.assertEqual([self.docfromrow(doc)
+                          for doc in self.db.iterview('test/nums',
+                                                      limit, limit=limit)],
                          [self.docfromnum(x) for x in range(limit)])
 
     def test_descending(self):
-        self.assertEqual([self.docfromrow(doc) for doc in self.db.iterview('test/nums', 10, descending=True)],
-                         [self.docfromnum(x) for x in range(self.num_docs - 1, -1, -1)])
-        self.assertEqual([self.docfromrow(doc) for doc in self.db.iterview('test/nums', 10, limit=int(self.num_docs / 4), descending=True)],
-                         [self.docfromnum(x) for x in range(self.num_docs - 1, int(self.num_docs * 3 / 4) - 1, -1)])
+        self.assertEqual([self.docfromrow(doc) for doc in
+                          self.db.iterview('test/nums', 10, descending=True)],
+                         [self.docfromnum(x) for x in
+                          range(self.num_docs - 1, -1, -1)])
+        self.assertEqual([self.docfromrow(doc) for doc in
+                          self.db.iterview('test/nums', 10,
+                                           limit=int(self.num_docs / 4),
+                                           descending=True)],
+                         [self.docfromnum(x) for x in
+                          range(self.num_docs - 1,
+                                int(self.num_docs * 3 / 4) - 1, -1)])
 
     def test_startkey(self):
-        self.assertEqual([self.docfromrow(doc) for doc in self.db.iterview('test/nums', 10, startkey=int(self.num_docs / 2) - 1)],
-                         [self.docfromnum(x) for x in range(self.num_docs - 2, self.num_docs)])
-        self.assertEqual([self.docfromrow(doc) for doc in self.db.iterview('test/nums', 10, startkey=1, descending=True)],
+        self.assertEqual(
+            [self.docfromrow(doc) for doc in
+             self.db.iterview('test/nums', 10,
+                              startkey=int(self.num_docs / 2) - 1)],
+            [self.docfromnum(x) for x in range(self.num_docs - 2,
+                                               self.num_docs)])
+        self.assertEqual([self.docfromrow(doc) for doc in
+                          self.db.iterview('test/nums', 10,
+                                           startkey=1,
+                                           descending=True)],
                          [self.docfromnum(x) for x in range(3, -1, -1)])
 
     def test_nullkeys(self):
-        self.assertEqual(len(list(self.db.iterview('test/nulls', 10))), self.num_docs)
+        self.assertEqual(len(list(self.db.iterview('test/nulls', 10))),
+                         self.num_docs)
+
 
 def suite():
     suite = unittest.TestSuite()

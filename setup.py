@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# flake8: noqa
 #
 # Copyright (C) 2007-2009 Christopher Lenz
 # All rights reserved.
@@ -23,7 +24,8 @@ if sys.version_info < (2, 6):
 
 # Build setuptools-specific options (if installed).
 if not has_setuptools:
-    print("WARNING: setuptools/distribute not available. Console scripts will not be installed.")
+    print("WARNING: setuptools/distribute not available. "
+          "Console scripts will not be installed.")
     setuptools_options = {}
 else:
     setuptools_options = {

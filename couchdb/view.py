@@ -194,7 +194,7 @@ def main():
         for option, value in option_list:
             if option in ('--version'):
                 message = _VERSION % dict(name=os.path.basename(sys.argv[0]),
-                                      version=VERSION)
+                                          version=VERSION)
             elif option in ('-h', '--help'):
                 message = _HELP % dict(name=os.path.basename(sys.argv[0]))
             elif option in ('--json-module'):

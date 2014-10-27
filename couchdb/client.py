@@ -55,8 +55,8 @@ class Server(object):
     >>> db
     <Database 'python-tests'>
 
-    You can access existing databases using item access, specifying the database
-    name as the key:
+    You can access existing databases using item access, specifying
+    the database name as the key:
 
     >>> db = server['python-tests']
     >>> db.name
@@ -65,6 +65,7 @@ class Server(object):
     Databases can be deleted using a ``del`` statement:
 
     >>> del server['python-tests']
+
     """
 
     def __init__(self, url=DEFAULT_BASE_URL, full_commit=True, session=None):
@@ -78,7 +79,7 @@ class Server(object):
         if isinstance(url, util.strbase):
             self.resource = http.Resource(url, session or http.Session())
         else:
-            self.resource = url # treat as a Resource object
+            self.resource = url  # treat as a Resource object
         if not full_commit:
             self.resource.headers['X-Couch-Full-Commit'] = 'false'
 
@@ -137,7 +138,7 @@ class Server(object):
         :raise ResourceNotFound: if no database with that name exists
         """
         db = Database(self.resource(name), name)
-        db.resource.head() # actually make a request to the database
+        db.resource.head()  # actually make a request to the database
         return db
 
     def config(self):
@@ -243,9 +244,9 @@ class Database(object):
     >>> doc                 #doctest: +ELLIPSIS
     <Document u'...'@... {...}>
 
-    Documents are represented as instances of the `Row` class, which is
-    basically just a normal dictionary with the additional attributes ``id`` and
-    ``rev``:
+    Documents are represented as instances of the `Row` class, which
+    is basically just a normal dictionary with the additional
+    attributes ``id`` and ``rev``:
 
     >>> doc.id, doc.rev     #doctest: +ELLIPSIS
     (u'...', ...)
@@ -392,7 +393,8 @@ class Database(object):
         :return: the ID of the created document
         :rtype: `unicode`
         """
-        warnings.warn('Database.create is deprecated, please use Database.save instead [2010-04-13]',
+        warnings.warn('Database.create is deprecated, please use '
+                      'Database.save instead [2010-04-13]',
                       DeprecationWarning, stacklevel=2)
         _, _, data = self.resource.post_json(body=data)
         return data['id']
@@ -400,10 +402,11 @@ class Database(object):
     def save(self, doc, **options):
         """Create a new document or update an existing document.
 
-        If doc has no _id then the server will allocate a random ID and a new
-        document will be created. Otherwise the doc's _id will be used to
-        identity the document to create or update. Trying to update an existing
-        document with an incorrect _rev will raise a ResourceConflict exception.
+        If doc has no _id then the server will allocate a random ID
+        and a new document will be created. Otherwise the doc's _id
+        will be used to identity the document to create or
+        update. Trying to update an existing document with an
+        incorrect _rev will raise a ResourceConflict exception.
 
         Note that it is generally better to avoid saving documents with no _id
         and instead generate document IDs on the client side. This is due to
@@ -423,6 +426,7 @@ class Database(object):
         :param options: optional args, e.g. batch='ok'
         :return: (id, rev) tuple of the save document
         :rtype: `tuple`
+
         """
         if '_id' in doc:
             func = _doc_resource(self.resource, doc['_id']).put_json
@@ -431,7 +435,7 @@ class Database(object):
         _, _, data = func(body=doc, **options)
         id, rev = data['id'], data.get('rev')
         doc['_id'] = id
-        if rev is not None: # Not present for batch='ok'
+        if rev is not None:  # Not present for batch='ok'
             doc['_rev'] = rev
         return id, rev
 
@@ -650,9 +654,9 @@ class Database(object):
     def put_attachment(self, doc, content, filename=None, content_type=None):
         """Create or replace an attachment.
 
-        Note that the provided `doc` is required to have a ``_rev`` field. Thus,
-        if the `doc` is based on a view row, the view row would need to include
-        the ``_rev`` field.
+        Note that the provided `doc` is required to have a ``_rev``
+        field. Thus, if the `doc` is based on a view row, the view row
+        would need to include the ``_rev`` field.
 
         :param doc: the dictionary or `Document` object representing the
                     document that the attachment should be added to
@@ -665,6 +669,7 @@ class Database(object):
                              MIME type is guessed based on the file name
                              extension
         :since: 0.4.1
+
         """
         if filename is None:
             if hasattr(content, 'name'):
@@ -677,9 +682,10 @@ class Database(object):
             )
 
         resource = _doc_resource(self.resource, doc['_id'])
-        status, headers, data = resource.put_json(filename, body=content, headers={
-            'Content-Type': content_type
-        }, rev=doc['_rev'])
+        status, headers, data = resource.put_json(
+            filename, body=content, headers={
+                'Content-Type': content_type
+            }, rev=doc['_rev'])
         doc['_rev'] = data['rev']
 
     def query(self, map_fun, reduce_fun=None, language='javascript',
@@ -788,7 +794,7 @@ class Database(object):
                                 exc_type(result['reason'])))
             else:
                 doc = documents[idx]
-                if isinstance(doc, dict): # XXX: Is this a good idea??
+                if isinstance(doc, dict):  # XXX: Is this a good idea??
                     doc.update({'_id': result['id'], '_rev': result['rev']})
                 results.append((True, result['id'], result['rev']))
 
@@ -945,11 +951,11 @@ class Database(object):
         _, _, data = self.resource.get('_changes', **opts)
         lines = data.iterchunks()
         for ln in lines:
-            if not ln: # skip heartbeats
+            if not ln:  # skip heartbeats
                 continue
             doc = json.decode(ln.decode('utf-8'))
-            if 'last_seq' in doc: # consume the rest of the response if this
-                for ln in lines:  # was the last line, allows conn reuse
+            if 'last_seq' in doc:  # consume the rest of the response if this
+                for ln in lines:   # was the last line, allows conn reuse
                     pass
             yield doc
 
@@ -994,7 +1000,7 @@ class Document(dict):
 
     def __repr__(self):
         return '<%s %r@%r %r>' % (type(self).__name__, self.id, self.rev,
-                                  dict([(k,v) for k,v in self.items()
+                                  dict([(k, v) for k, v in self.items()
                                         if k not in ('_id', '_rev')]))
 
     @property

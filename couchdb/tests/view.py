@@ -37,7 +37,8 @@ class ViewServerTestCase(unittest.TestCase):
                          b'[[[null, {"foo": "bar"}]]]\n')
 
     def test_i18n(self):
-        input = StringIO(b'["add_fun", "def fun(doc): yield doc[\\"test\\"], doc"]\n'
+        input = StringIO(b'["add_fun", "def fun(doc): yield doc[\\"test\\"], '
+                         b'doc"]\n'
                          b'["map_doc", {"test": "b\xc3\xa5r"}]\n')
         output = StringIO()
         view.run(input=input, output=output)
@@ -69,16 +70,17 @@ class ViewServerTestCase(unittest.TestCase):
 
     def test_reduce(self):
         input = StringIO(b'["reduce", '
-                          b'["def fun(keys, values): return sum(values)"], '
-                          b'[[null, 1], [null, 2], [null, 3]]]\n')
+                         b'["def fun(keys, values): return sum(values)"], '
+                         b'[[null, 1], [null, 2], [null, 3]]]\n')
         output = StringIO()
         view.run(input=input, output=output)
         self.assertEqual(output.getvalue(), b'[true, [6]]\n')
 
     def test_reduce_with_logging(self):
         input = StringIO(b'["reduce", '
-                          b'["def fun(keys, values): log(\'Summing %r\' % (values,)); return sum(values)"], '
-                          b'[[null, 1], [null, 2], [null, 3]]]\n')
+                         b'["def fun(keys, values): log(\'Summing %r\' % '
+                         b'(values,)); return sum(values)"], '
+                         b'[[null, 1], [null, 2], [null, 3]]]\n')
         output = StringIO()
         view.run(input=input, output=output)
         self.assertEqual(output.getvalue(),
@@ -87,16 +89,17 @@ class ViewServerTestCase(unittest.TestCase):
 
     def test_rereduce(self):
         input = StringIO(b'["rereduce", '
-                          b'["def fun(keys, values, rereduce): return sum(values)"], '
-                          b'[1, 2, 3]]\n')
+                         b'["def fun(keys, values, rereduce): '
+                         b'return sum(values)"], '
+                         b'[1, 2, 3]]\n')
         output = StringIO()
         view.run(input=input, output=output)
         self.assertEqual(output.getvalue(), b'[true, [6]]\n')
 
     def test_reduce_empty(self):
         input = StringIO(b'["reduce", '
-                          b'["def fun(keys, values): return sum(values)"], '
-                          b'[]]\n')
+                         b'["def fun(keys, values): return sum(values)"], '
+                         b'[]]\n')
         output = StringIO()
         view.run(input=input, output=output)
         self.assertEqual(output.getvalue(),

@@ -53,7 +53,8 @@ def create_bulk_docs(db):
     batch_size = 100
     num_batches = 1000
     for i in range(num_batches):
-        db.update([{'_id': unicode((i * batch_size) + j)} for j in range(batch_size)])
+        db.update([{'_id': unicode((i * batch_size) + j)}
+                   for j in range(batch_size)])
 
 
 if __name__ == '__main__':

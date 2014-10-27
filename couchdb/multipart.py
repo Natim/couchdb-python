@@ -30,17 +30,17 @@ CRLF = b'\r\n'
 
 def read_multipart(fileobj, boundary=None):
     """Simple streaming MIME multipart parser.
-    
+
     This function takes a file-like object reading a MIME envelope, and yields
     a ``(headers, is_multipart, payload)`` tuple for every part found, where
     ``headers`` is a dictionary containing the MIME headers of that part (with
     names lower-cased), ``is_multipart`` is a boolean indicating whether the
     part is itself multipart, and ``payload`` is either a string (if
     ``is_multipart`` is false), or an iterator over the nested parts.
-    
+
     Note that the iterator produced for nested multipart payloads MUST be fully
     consumed, even if you wish to skip over the content.
-    
+
     :param fileobj: a file-like object
     :param boundary: the part boundary string, will generally be determined
                      automatically from the headers of the outermost multipart
@@ -52,8 +52,10 @@ def read_multipart(fileobj, boundary=None):
     buf = []
     outer = in_headers = boundary is None
 
-    next_boundary = boundary and ('--' + boundary + '\n').encode('ascii') or None
-    last_boundary = boundary and ('--' + boundary + '--\n').encode('ascii') or None
+    next_boundary = (boundary and ('--' + boundary + '\n').encode('ascii')
+                     or None)
+    last_boundary = (boundary and ('--' + boundary + '--\n').encode('ascii')
+                     or None)
 
     def _current_part():
         payload = b''.join(buf)
@@ -233,7 +235,9 @@ def write_multipart(fileobj, subtype='mixed', boundary=None):
     >>> part.add('text/plain', 'Just testing')
     >>> part.close()
     >>> envelope.close()
-    >>> print(buf.getvalue().replace(b'\r\n', b'\n').decode('utf-8')) #:doctest +ELLIPSIS
+    >>> print(
+    ...   buf.getvalue().replace(b'\r\n', b'\n').decode('utf-8')
+    ... )  #:doctest +ELLIPSIS
     Content-Type: multipart/mixed; boundary="==123456789=="
     <BLANKLINE>
     --==123456789==
@@ -248,7 +252,7 @@ def write_multipart(fileobj, subtype='mixed', boundary=None):
     --==abcdefghi==--
     --==123456789==--
     <BLANKLINE>
-    
+
     :param fileobj: a writable file-like object that the output should get
                     written to
     :param subtype: the subtype of the multipart MIME type (e.g. "mixed")

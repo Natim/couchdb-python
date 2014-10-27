@@ -13,6 +13,7 @@ import sys
 
 from couchdb import client
 
+
 class Py23DocChecker(doctest.OutputChecker):
     def check_output(self, want, got, optionflags):
         if sys.version_info[0] > 2:
@@ -20,8 +21,10 @@ class Py23DocChecker(doctest.OutputChecker):
             want = re.sub('u"(.*?)"', '"\\1"', want)
         return doctest.OutputChecker.check_output(self, want, got, optionflags)
 
+
 def doctest_suite(mod):
     return doctest.DocTestSuite(mod, checker=Py23DocChecker())
+
 
 class TempDatabaseMixin(object):
 

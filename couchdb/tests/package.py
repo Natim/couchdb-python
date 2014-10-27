@@ -3,6 +3,7 @@
 import unittest
 import couchdb
 
+
 class PackageTestCase(unittest.TestCase):
 
     def test_exports(self):

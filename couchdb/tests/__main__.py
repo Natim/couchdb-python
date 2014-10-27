@@ -8,8 +8,10 @@
 
 import unittest
 
-from couchdb.tests import client, couch_tests, design, couchhttp, \
-                          multipart, mapping, view, package, tools
+from couchdb.tests import (
+    client, couch_tests, design, couchhttp,
+    multipart, mapping, view, package, tools
+)
 
 
 def suite():

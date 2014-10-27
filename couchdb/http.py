@@ -53,7 +53,7 @@ if sys.version < '2.7':
 
         Based on code originally copied from Python 2.7's httplib module.
         """
-        
+
         def endheaders(self, message_body=None):
             if self.__dict__['_HTTPConnection__state'] == _CS_REQ_STARTED:
                 self.__dict__['_HTTPConnection__state'] = _CS_REQ_SENT
@@ -121,6 +121,7 @@ class RedirectLimit(Exception):
 
 CHUNK_SIZE = 1024 * 8
 
+
 class ResponseBody(object):
 
     def __init__(self, resp, conn_pool, url, conn):
@@ -170,14 +171,14 @@ class ResponseBody(object):
                 break
             chunksz = int(self.resp.fp.readline().strip(), 16)
             if not chunksz:
-                self.resp.fp.read(2) #crlf
+                self.resp.fp.read(2)  # crlf
                 self.resp.close()
                 self._release_conn()
                 break
             chunk = self.resp.fp.read(chunksz)
             for ln in chunk.splitlines():
                 yield ln
-            self.resp.fp.read(2) #crlf
+            self.resp.fp.read(2)  # crlf
 
 
 RETRYABLE_ERRORS = frozenset([
@@ -217,7 +218,8 @@ class Session(object):
         self.max_redirects = max_redirects
         self.perm_redirects = {}
         self.connection_pool = ConnectionPool(timeout)
-        self.retry_delays = list(retry_delays) # We don't want this changing on us.
+        # We don't want this changing on us.
+        self.retry_delays = list(retry_delays)
         self.retryable_errors = set(retryable_errors)
 
     def request(self, method, url, body=None, headers=None, credentials=None,
@@ -255,7 +257,8 @@ class Session(object):
         if authorization:
             headers['Authorization'] = authorization
 
-        path_query = util.urlunsplit(('', '') + util.urlsplit(url)[2:4] + ('',))
+        path_query = util.urlunsplit(('', '') +
+                                     util.urlsplit(url)[2:4] + ('',))
         conn = self.connection_pool.get(url)
 
         def _try_request_with_retries(retries):
@@ -288,7 +291,7 @@ class Session(object):
                             conn.endheaders(body.encode('utf-8'))
                         else:
                             conn.endheaders(body)
-                    else: # assume a file-like object and send in chunks
+                    else:  # assume a file-like object and send in chunks
                         conn.endheaders()
                         while 1:
                             chunk = body.read(CHUNK_SIZE)
@@ -395,6 +398,7 @@ class Session(object):
 def cache_sort(i):
     return datetime.fromtimestamp(time.mktime(parsedate(i[1][1]['Date'])))
 
+
 class Cache(object):
     """Content cache."""
 
@@ -425,7 +429,7 @@ class ConnectionPool(object):
 
     def __init__(self, timeout):
         self.timeout = timeout
-        self.conns = {} # HTTP connections keyed by (scheme, host)
+        self.conns = {}  # HTTP connections keyed by (scheme, host)
         self.lock = Lock()
 
     def get(self, url):
@@ -474,7 +478,7 @@ class Resource(object):
 
     def __init__(self, url, session, headers=None):
         if sys.version_info[0] == 2 and isinstance(url, util.utype):
-            url = url.encode('utf-8') # kind of an ugly hack for issue 235
+            url = url.encode('utf-8')  # kind of an ugly hack for issue 235
         self.url, self.credentials = extract_credentials(url)
         if session is None:
             session = Session()
@@ -528,7 +532,8 @@ class Resource(object):
                                     headers=all_headers,
                                     credentials=self.credentials)
 
-    def _request_json(self, method, path=None, body=None, headers=None, **params):
+    def _request_json(self, method, path=None, body=None,
+                      headers=None, **params):
         status, headers, data = self._request(method, path, body=body,
                                               headers=headers, **params)
         if 'application/json' in headers.get('content-type', ''):
@@ -536,16 +541,16 @@ class Resource(object):
         return status, headers, data
 
 
-
 def extract_credentials(url):
     """Extract authentication (user name and password) credentials from the
     given URL.
-    
+
     >>> extract_credentials('http://localhost:5984/_config/')
     ('http://localhost:5984/_config/', None)
     >>> extract_credentials('http://joe:secret@localhost:5984/_config/')
     ('http://localhost:5984/_config/', ('joe', 'secret'))
-    >>> extract_credentials('http://joe%40example.com:secret@localhost:5984/_config/')
+    >>> extract_credentials(
+    ...   'http://joe%40example.com:secret@localhost:5984/_config/')
     ('http://localhost:5984/_config/', ('joe@example.com', 'secret'))
     """
     parts = util.urlsplit(url)
@@ -642,4 +647,3 @@ def urljoin(base, *path, **query):
         retval.extend(['?', urlencode(params)])
 
     return ''.join(retval)
-

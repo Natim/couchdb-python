@@ -12,6 +12,7 @@ from couchdb import multipart
 from couchdb.util import StringIO
 from couchdb.tests import testutil
 
+
 class ReadMultipartTestCase(unittest.TestCase):
 
     def test_flat(self):
@@ -40,7 +41,7 @@ ETag: "1-2182689334"
 --===============1946781859==--
 '''
         num = 0
-        parts =  multipart.read_multipart(StringIO(text))
+        parts = multipart.read_multipart(StringIO(text))
         for headers, is_multipart, payload in parts:
             self.assertEqual(is_multipart, False)
             self.assertEqual('application/json', headers['content-type'])
@@ -52,7 +53,8 @@ ETag: "1-2182689334"
             elif num == 1:
                 self.assertEqual('foo', headers['content-id'])
                 self.assertEqual('"1-2182689334"', headers['etag'])
-                self.assertEqual(b'{\n  "_id": "foo",\n  "_rev": "1-2182689334",'
+                self.assertEqual(b'{\n  "_id": "foo",\n  '
+                                 b'"_rev": "1-2182689334",'
                                  b'\n  "something": "cool"\n}', payload)
             num += 1
         self.assertEqual(num, 2)
@@ -67,7 +69,7 @@ Content-ID: bar
 ETag: "1-4229094393"
 
 {
-  "_id": "bar", 
+  "_id": "bar",
   "_rev": "1-4229094393"
 }
 --===============1946781859==
@@ -79,8 +81,8 @@ ETag: "1-919589747"
 Content-Type: application/json
 
 {
-  "_id": "foo", 
-  "_rev": "1-919589747", 
+  "_id": "foo",
+  "_rev": "1-919589747",
   "something": "cool"
 }
 --===============0909101126==
@@ -98,7 +100,7 @@ Content-ID: baz
 ETag: "1-3482142493"
 
 {
-  "_id": "baz", 
+  "_id": "baz",
   "_rev": "1-3482142493"
 }
 --===============1946781859==--
@@ -111,7 +113,7 @@ ETag: "1-3482142493"
                 self.assertEqual('application/json', headers['content-type'])
                 self.assertEqual('bar', headers['content-id'])
                 self.assertEqual('"1-4229094393"', headers['etag'])
-                self.assertEqual(b'{\n  "_id": "bar", \n  '
+                self.assertEqual(b'{\n  "_id": "bar",\n  '
                                  b'"_rev": "1-4229094393"\n}', payload)
             elif num == 1:
                 self.assertEqual(is_multipart, True)
@@ -124,8 +126,8 @@ ETag: "1-3482142493"
                     if partnum == 0:
                         self.assertEqual('application/json',
                                          headers['content-type'])
-                        self.assertEqual(b'{\n  "_id": "foo", \n  "_rev": '
-                                         b'"1-919589747", \n  "something": '
+                        self.assertEqual(b'{\n  "_id": "foo",\n  "_rev": '
+                                         b'"1-919589747",\n  "something": '
                                          b'"cool"\n}', payload)
                     elif partnum == 1:
                         self.assertEqual('text/plain', headers['content-type'])
@@ -140,9 +142,8 @@ ETag: "1-3482142493"
                 self.assertEqual('application/json', headers['content-type'])
                 self.assertEqual('baz', headers['content-id'])
                 self.assertEqual('"1-3482142493"', headers['etag'])
-                self.assertEqual(b'{\n  "_id": "baz", \n  '
+                self.assertEqual(b'{\n  "_id": "baz",\n  '
                                  b'"_rev": "1-3482142493"\n}', payload)
-
 
             num += 1
         self.assertEqual(num, 3)
@@ -172,7 +173,8 @@ class WriteMultipartTestCase(unittest.TestCase):
         envelope = multipart.write_multipart(buf, boundary='==123456789==')
         envelope.add('text/plain', u'Iñtërnâtiônàlizætiøn')
         envelope.close()
-        self.assertEqual(u'''Content-Type: multipart/mixed; boundary="==123456789=="
+        self.assertEqual(
+            u'''Content-Type: multipart/mixed; boundary="==123456789=="
 
 --==123456789==
 Content-Length: 27
@@ -197,7 +199,8 @@ Iñtërnâtiônàlizætiøn
                      '{"_rev": "3-bc27b6930ca514527d8954c7c43e6a09",'
                      ' "_id": "文档"}',
                      headers={'Content-ID': u"文档"})
-        self.assertEqual(u'''Content-Type: multipart/mixed; boundary="==123456789=="
+        self.assertEqual(
+            u'''Content-Type: multipart/mixed; boundary="==123456789=="
 
 --==123456789==
 Content-ID: =?utf-8?b?5paH5qGj?=

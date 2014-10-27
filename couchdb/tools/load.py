@@ -29,7 +29,7 @@ def load_db(fileobj, dburl, username=None, password=None, ignore_errors=False):
     for headers, is_multipart, payload in read_multipart(fileobj):
         docid = headers['content-id']
 
-        if is_multipart: # doc has attachments
+        if is_multipart:  # doc has attachments
             for headers, _, payload in payload:
                 if 'content-id' not in headers:
                     doc = json.decode(payload)
@@ -41,7 +41,7 @@ def load_db(fileobj, dburl, username=None, password=None, ignore_errors=False):
                         'length': len(payload)
                     }
 
-        else: # no attachments, just the JSON
+        else:  # no attachments, just the JSON
             doc = json.decode(payload)
 
         del doc['_rev']
@@ -64,7 +64,7 @@ def main():
                            'and continue with the remaining documents')
     parser.add_option('--json-module', action='store', dest='json_module',
                       help='the JSON module to use ("simplejson", "cjson", '
-                            'or "json" are supported)')
+                      'or "json" are supported)')
     parser.add_option('-u', '--username', action='store', dest='username',
                       help='the username to use for authentication')
     parser.add_option('-p', '--password', action='store', dest='password',

@@ -93,8 +93,8 @@ class CouchTests(testutil.TempDatabaseMixin, unittest.TestCase):
         self.db['foo'] = data
 
     def test_lots_of_docs(self):
-        num = 100 # Crank up manually to really test
-        for i in range(num): 
+        num = 100  # Crank up manually to really test
+        for i in range(num):
             self.db[str(i)] = {'integer': i, 'string': str(i)}
         self.assertEqual(num, len(self.db))
 
@@ -125,17 +125,17 @@ class CouchTests(testutil.TempDatabaseMixin, unittest.TestCase):
         }"""
         results = list(self.db.query(query))
         self.assertEqual(11, len(results))
-        self.assertEqual("Boston, MA", results[0].key);
-        self.assertEqual("Cambridge, MA", results[1].key);
-        self.assertEqual("Charlotte, NC", results[2].key);
-        self.assertEqual("Lowell, MA", results[3].key);
-        self.assertEqual("Miami, FL", results[4].key);
-        self.assertEqual("Orlando, FL", results[5].key);
-        self.assertEqual("Raleigh, NC", results[6].key);
-        self.assertEqual("Springfield, FL", results[7].key);
-        self.assertEqual("Springfield, MA", results[8].key);
-        self.assertEqual("Tampa, FL", results[9].key);
-        self.assertEqual("Worcester, MA", results[10].key);
+        self.assertEqual("Boston, MA", results[0].key)
+        self.assertEqual("Cambridge, MA", results[1].key)
+        self.assertEqual("Charlotte, NC", results[2].key)
+        self.assertEqual("Lowell, MA", results[3].key)
+        self.assertEqual("Miami, FL", results[4].key)
+        self.assertEqual("Orlando, FL", results[5].key)
+        self.assertEqual("Raleigh, NC", results[6].key)
+        self.assertEqual("Springfield, FL", results[7].key)
+        self.assertEqual("Springfield, MA", results[8].key)
+        self.assertEqual("Tampa, FL", results[9].key)
+        self.assertEqual("Worcester, MA", results[10].key)
 
         # Add a city and rerun the query
         doc = self.db['NC']
@@ -149,12 +149,12 @@ class CouchTests(testutil.TempDatabaseMixin, unittest.TestCase):
         del self.db['MA']
         results = list(self.db.query(query))
         self.assertEqual(7, len(results))
-        self.assertEqual("Charlotte, NC", results[0].key);
-        self.assertEqual("Miami, FL", results[1].key);
-        self.assertEqual("Orlando, FL", results[2].key);
-        self.assertEqual("Raleigh, NC", results[3].key);
-        self.assertEqual("Springfield, FL", results[4].key);
-        self.assertEqual("Tampa, FL", results[5].key);
+        self.assertEqual("Charlotte, NC", results[0].key)
+        self.assertEqual("Miami, FL", results[1].key)
+        self.assertEqual("Orlando, FL", results[2].key)
+        self.assertEqual("Raleigh, NC", results[3].key)
+        self.assertEqual("Springfield, FL", results[4].key)
+        self.assertEqual("Tampa, FL", results[5].key)
         self.assertEqual("Wilmington, NC", results[6].key)
 
     def test_large_docs(self):
@@ -192,12 +192,14 @@ class CouchTests(testutil.TempDatabaseMixin, unittest.TestCase):
             self.assertEqual(texts[idx], row.key)
 
     def test_design_docs(self):
-        for i in range(50): 
+        for i in range(50):
             self.db[str(i)] = {'integer': i, 'string': str(i)}
         self.db['_design/test'] = {'views': {
             'all_docs': {'map': 'function(doc) { emit(doc.integer, null) }'},
             'no_docs': {'map': 'function(doc) {}'},
-            'single_doc': {'map': 'function(doc) { if (doc._id == "1") emit(null, 1) }'}
+            'single_doc': {
+                'map': 'function(doc) { if (doc._id == "1") emit(null, 1) }'
+            }
         }}
         for idx, row in enumerate(self.db.view('test/all_docs')):
             self.assertEqual(idx, row.key)
@@ -230,7 +232,7 @@ class CouchTests(testutil.TempDatabaseMixin, unittest.TestCase):
         rows = self.db.query(query, descending=True)
         for idx, row in enumerate(rows):
             if idx < len(values):
-                self.assertEqual(values[len(values) - 1- idx], row.key)
+                self.assertEqual(values[len(values) - 1 - idx], row.key)
             else:
                 self.assertEqual(None, row.value)
 

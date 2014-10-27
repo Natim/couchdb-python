@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 #
 # Copyright (C) 2007 Christopher Lenz
 # All rights reserved.

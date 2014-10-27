@@ -12,6 +12,7 @@ import unittest
 from couchdb import design, mapping
 from couchdb.tests import testutil
 
+
 class DocumentTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
 
     def test_mutable_fields(self):
@@ -97,8 +98,8 @@ class ListFieldTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
             title = mapping.TextField()
             comments = mapping.ListField(mapping.DictField(
                 mapping.Mapping.build(
-                    author = mapping.TextField(),
-                    content = mapping.TextField(),
+                    author=mapping.TextField(),
+                    content=mapping.TextField(),
                 )
             ))
         post = Post(title='Foo bar')
@@ -205,7 +206,7 @@ class ListFieldTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
     def test_mutable_fields(self):
         class Thing(mapping.Document):
             numbers = mapping.ListField(mapping.DecimalField)
-        thing = Thing.wrap({'_id': 'foo', '_rev': 1}) # no numbers
+        thing = Thing.wrap({'_id': 'foo', '_rev': 1})  # no numbers
         thing.numbers.append('1.0')
         thing2 = Thing(id='thing2')
         self.assertEqual([i for i in thing2.numbers], [])
@@ -246,7 +247,8 @@ class WrappingTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         self.Item().store(self.db)
         results = self.Item.query(self.db, all_map_func, None)
         self.assertEqual(type(results.rows[0]), self.Item)
-        results = self.Item.query(self.db, all_map_func, None, include_docs=True)
+        results = self.Item.query(self.db, all_map_func, None,
+                                  include_docs=True)
         self.assertEqual(type(results.rows[0]), self.Item)
 
 
