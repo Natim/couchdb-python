@@ -1,10 +1,11 @@
 
 __all__ = [
     'StringIO', 'urlsplit', 'urlunsplit', 'urlquote', 'urlunquote',
-    'urlencode', 'utype', 'ltype', 'strbase', 'funcode', 'urlparse',
+    'urlencode', 'utype', 'btype', 'ltype', 'strbase', 'funcode', 'urlparse',
 ]
 
 utype = unicode
+btype = str
 ltype = long
 strbase = str, bytes, unicode
 

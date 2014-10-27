@@ -93,12 +93,20 @@ class CacheTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
         self.assertTrue('baz' in cache.by_url)
 
 
+class BasicAuthTestCase(testutil.TempDatabaseMixin, unittest.TestCase):
+
+    def test_basic_auth_builder(self):
+        header = http.basic_auth(('root', 'relax'))
+        self.assertTrue(isinstance(header, util.btype))
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(testutil.doctest_suite(http))
     suite.addTest(unittest.makeSuite(SessionTestCase, 'test'))
     suite.addTest(unittest.makeSuite(ResponseBodyTestCase, 'test'))
     suite.addTest(unittest.makeSuite(CacheTestCase, 'test'))
+    suite.addTest(unittest.makeSuite(BasicAuthTestCase, 'test'))
     return suite
 
 
